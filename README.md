@@ -33,11 +33,7 @@ Automated n8n workflow that fetches Indian stock market data every day at 3:30 P
 | `workflow.json` | Exported n8n workflow |
 | `README.md` | This documentation |
 
-## ⚠️ Important Notes
-- Remove all credentials before committing to GitHub
-- Use environment variables for sensitive data
-- Test before setting schedule to production
 
-## 🤝 Contributing
-Feel free to fork, modify, and share improvements!
+
+
 
