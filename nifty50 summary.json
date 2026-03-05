@@ -1,0 +1,126 @@
+{
+  "name": "nifty50 summary",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 16
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "021d7dd5-b46b-43a3-a464-5f376aea0b01",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/^NSEI",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        176,
+        0
+      ],
+      "id": "7fb4f1d3-e36d-4909-8c69-6da89d424a8b",
+      "name": "Get Nifty 50 Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json.chart.result[0].meta;\n\nconst previousClose = data.previousClose;\nconst currentPrice = data.regularMarketPrice;\nconst changePoints = (currentPrice - previousClose).toFixed(2);\nconst changePercent = ((changePoints / previousClose) * 100).toFixed(2);\n\nlet sentiment = changePoints > 0 ? \"🟢 Bullish\" : \"🔴 Bearish\";\n\nreturn [{\n  json: {\n    nifty: {\n      value: currentPrice.toFixed(2),\n      changePoints: changePoints,\n      changePercent: changePercent,\n      sentiment: sentiment,\n      previousClose: previousClose.toFixed(2)\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        0
+      ],
+      "id": "ddc28b90-d40b-481a-b17b-8ee6b3eccf8e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "ishajain0803@gmail.com",
+        "subject": "Daily Nifty 50 Summary",
+        "message": "=<h2>Nifty 50 Market Summary</h2>\n<p><strong>Closed at:</strong> {{$json.nifty.value}}</p>\n<p><strong>Previous Close:</strong> {{$json.nifty.previousClose}}</p>\n<p><strong>Change:</strong> {{$json.nifty.changePoints}} points ({{$json.nifty.changePercent}}%)</p>\n<p><strong>Sentiment:</strong> {{$json.nifty.sentiment}}</p>\n\n<p>— Sent automatically at 3:30 PM</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "4b6fdcad-08ff-4bcc-9120-90d53fb007ad",
+      "name": "Send a message",
+      "webhookId": "a96defb8-289c-4d1e-b83a-0aa4e480abd5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FyEWZUZ911tjKL8C",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Nifty 50 Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Nifty 50 Data": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
+  },
+  "versionId": "0b79403a-4e70-4e33-b1f8-8e72c52cef1e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "295e90a1ac1ac5c75bf6847fa90b34098416ec0cea705396a9673b2e5240aef0"
+  },
+  "id": "cbdipyNUwhA64boF",
+  "tags": []
+}
